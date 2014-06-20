@@ -5,6 +5,8 @@
 <body>
     {{> framebuffer}}
     
+    {{> editor}}
+    
     <div class="navbar navbar-fixed-top" role="navigation">
         <div class="container">
             <div class="navbar-header">
@@ -30,4 +32,10 @@
 
 <template name="framebuffer">
     <canvas id="framebuffer"></canvas>
+</template>
+
+<template name="editor">
+    <div class="editorContainer">
+        <textarea id="editor"></textarea>
+    </div>
 </template>

@@ -1,0 +1,29 @@
+.editorContainer 
+{
+    color: white;
+    text-shadow: rgba( 0, 0, 0, 1 ) 0px 1px 2px;
+    background-color: transparent;
+    position: absolute; left: 25px; top: 75px; right:25px; bottom: 25px;
+    padding: 0;
+    border: solid 1px transparent;
+    border-radius: 5px;
+    line-height: 1.1em;
+    font-family: monospace;
+    font-size: 14px;
+
+    visibility: visible;
+    overflow:auto;
+
+    /* transition between transparent and semi-transparent black on hover */
+    transition: background-color 500ms;
+    -webkit-transition: background-color 500ms;
+    -o-transition: background-color 500ms;
+    -moz-transition: background-color 500ms;
+    -ms-transition: background-color 500ms;
+}
+
+.editorContainer:hover 
+{
+    background-color:rgba(0,0,0,.5);
+    border: solid 1px rgba(128,128,128,.4);
+}
