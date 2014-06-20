@@ -17,5 +17,14 @@ Editor.init = function(textarea)
             } 
         }
     });
+    
+	Editor.cm.on("change", function(cm, change) {
+
+        console.log("change");
+        // clearTimeout(compileTimer);
+        // compileTimer = setTimeout(compile, 500);
+
+    });
+    
     console.log("Editor initialized.");
 };
