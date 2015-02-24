@@ -17,7 +17,9 @@ Renderer = {
     magicShader: null,
     blitShader: null,
     renderTargetFront: null,
-    renderTargetBack: null
+    renderTargetBack: null,
+    recompileTimer: null,
+    isInitialized: false
 };
 
 Renderer.init = function(canvasNode)
@@ -39,14 +41,9 @@ Renderer.init = function(canvasNode)
 		alert("WebGL not supported");
 	}
     this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    	
-    ShaderManager.getShader("pass-through", "blit-texture", function(shaderProgram){
-        Renderer.blitShader = shaderProgram;
-    });
-
-    ShaderManager.getShader("pass-through", "magic", function(shaderProgram){
-        Renderer.magicShader = shaderProgram;
-    });
+    
+    Renderer.blitShader = ShaderManager.getShader("blitShader", $("#vs_passthrough").text(), $("#fs_blit").text());
+    Renderer.magicShader = ShaderManager.getShader("magicShader", $("#vs_passthrough").text(), $("#fs_magic").text());
     
     if (!window.requestAnimationFrame) 
     {
@@ -74,8 +71,19 @@ Renderer.init = function(canvasNode)
     gl.disable(gl.DEPTH_TEST);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     this.onResize();
+    this.isInitialized = true;
     console.log("Renderer initialized.");
 };
+
+Renderer.replaceFragmentShader = function(programKey, code)
+{
+    clearTimeout(Renderer.recompileTimer);
+    Renderer.recompileTimer = setTimeout(function() {
+        console.log("recompile!");
+        Renderer.magicShader = ShaderManager.replaceShader("magicShader", $("#vs_passthrough").text(), code);
+    }, 500);
+}
+
 
 Renderer.onResize = function()
 {

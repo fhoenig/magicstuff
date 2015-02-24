@@ -1,0 +1,52 @@
+
+<template name="fs_magic">
+<script id="fs_magic" type="x-shader/x-fragment">#ifdef GL_ES
+precision highp float;
+#endif
+
+uniform float time;
+uniform vec2 mouse;
+uniform vec2 resolution;
+uniform sampler2D bb;
+
+void main() 
+{
+    // coordinate system with origin in the center and y-axis goes up
+    // y-range is [-1.0, 1.0] and x-range is based on aspect ratio.
+    vec2 p = (-resolution.xy + 2.0 * gl_FragCoord.xy) / resolution.y;
+    vec2 m = (mouse * 2.0 - 1.0) * vec2(resolution.x / resolution.y, 1.0);
+
+    // MAGIC GOES HERE...
+
+    gl_FragColor = vec4(0.0);
+}
+</script>
+</template>
+
+<template name="fs_blit">
+<script id="fs_blit" type="x-shader/x-fragment">
+    #ifdef GL_ES
+    precision mediump float;
+    #endif
+
+    uniform vec2 resolution;
+    uniform sampler2D texture;
+
+    void main() 
+    {
+    	vec2 uv = gl_FragCoord.xy / resolution.xy;
+    	gl_FragColor = texture2D(texture, uv);
+    }
+</script>
+</template>
+
+<template name="vs_passthrough">
+    <script id="vs_passthrough" type="x-shader/x-fragment">
+    attribute vec3 position;
+
+    void main() 
+    {
+    	gl_Position = vec4(position, 1.0);
+    }
+    </script>
+</template>

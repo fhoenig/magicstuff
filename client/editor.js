@@ -18,7 +18,7 @@ Template.CodeMirror.rendered = function()
 
 	if (this.data.reactiveVar) 
     {
-		Tracker.autorun(function () 
+		Tracker.autorun(function() 
         {
 			var val = Session.get(self.data.reactiveVar) || "";
 			if (val != editor.getValue()) 
@@ -74,12 +74,11 @@ Template.editor.helpers({
     
 });
 
-Template.editor.events({
-
-    "change": function(e, t) 
+Tracker.autorun(function () 
+{
+    var code = Session.get("currentCode");
+    if (typeof Renderer !== 'undefined' && Renderer.isInitialized == true)
     {
-        var code = t.find("#maineditor").value;
-        console.log("foo", code);
+        Renderer.replaceFragmentShader("magicShader", code);
     }
-
 });

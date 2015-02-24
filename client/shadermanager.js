@@ -29,68 +29,52 @@ Shader = Class.extend({
 });
 
 ShaderManager = {
-    shaderPrograms: {},
-    uniformCache: {},
-    shadersPending: {}
+    shaderPrograms: {}
 };
 
 
-ShaderManager.getShader = function(vsh, fsh, callback)
+ShaderManager.getShader = function(programKey, vsh, fsh)
 {
     var gl = Renderer.gl;
-    var programKey = vsh+fsh;
     
     if (!(programKey in this.shaderPrograms))
     {
-        var vshUrl = "/shaders/" + vsh + ".vsh?nocache=" + Date.now();
-        var fshUrl = "/shaders/" + fsh + ".fsh?nocache=" + Date.now();
-        
-        // if shader was already requested, add callback to pending queue
-        if (programKey in ShaderManager.shadersPending)
+        var vertexShader = ShaderManager.compileShader(vsh, gl.VERTEX_SHADER);
+        if (vertexShader == null)
         {
-            ShaderManager.shadersPending[programKey].push(callback);
             return;
         }
-        
-        // keep a list of callbacks of requesters for this very shader
-        ShaderManager.shadersPending[programKey] = [callback];
-        
-        HTTP.get(vshUrl, null, function(err, res) {
-
-            var vertexShader = ShaderManager.compileShader(res.content, gl.VERTEX_SHADER);
-            if (vertexShader == null)
-            {
-                callback(null);
-                return;
-            }
             
-            HTTP.get(fshUrl, null, function(err, res) {
-                var fragmentShader = ShaderManager.compileShader(res.content, gl.FRAGMENT_SHADER);
-                if (fragmentShader == null)
-                {
-                    callback(null);
-                    return;
-                }
-                var shaderProg = ShaderManager.linkProgram(vertexShader, fragmentShader);
-                if (shaderProg == null)
-                {
-                    callback(null);
-                    return;
-                }
-                ShaderManager.shaderPrograms[programKey] = new Shader(shaderProg);
-                for (var cb in ShaderManager.shadersPending[programKey])
-                {
-                    (ShaderManager.shadersPending[programKey][cb])(ShaderManager.shaderPrograms[programKey]);
-                }
-                delete ShaderManager.shadersPending[programKey];
-            });
-        });
+        var fragmentShader = ShaderManager.compileShader(fsh, gl.FRAGMENT_SHADER);
+        if (fragmentShader == null)
+        {
+            return;
+        }
+        var shaderProg = ShaderManager.linkProgram(vertexShader, fragmentShader);
+        if (shaderProg == null)
+        {
+            return;
+        }
+        ShaderManager.shaderPrograms[programKey] = new Shader(shaderProg);
+        return ShaderManager.shaderPrograms[programKey];
     }
     else
     {
-        callback(this.shaderPrograms[programKey]);
+        return this.shaderPrograms[programKey];
     }
 };
+
+ShaderManager.replaceShader = function(programKey, vsh, fsh)
+{
+    var gl = Renderer.gl;
+    if (programKey in this.shaderPrograms)
+    {
+        var old = this.shaderPrograms[programKey];
+        gl.deleteProgram(old.prog);
+        delete this.shaderPrograms[programKey];
+    }
+    return ShaderManager.getShader(programKey, vsh, fsh);
+}
 
 ShaderManager.compileShader = function(src, type)
 {
