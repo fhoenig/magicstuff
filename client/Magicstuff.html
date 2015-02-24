@@ -5,7 +5,9 @@
 <body>
     {{> framebuffer}}
     
+    <div class="editorContainer">    
     {{> editor}}
+    </div>
     
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container-fluid">
@@ -31,7 +33,9 @@
 </template>
 
 <template name="editor">
-    <div class="editorContainer">
-        <textarea id="editor"></textarea>
-    </div>
+    {{> CodeMirror id="maineditor" name="maineditor" options=editorOptions reactiveVar="currentCode"}}
+</template>
+
+<template name="CodeMirror">
+	<textarea id="{{editorId}}" name="{{editorName}}" style="display: none">{{code}}</textarea>
 </template>

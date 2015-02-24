@@ -1,30 +1,85 @@
-Editor = {
-    cm: null
-};
-
-Editor.init = function(textarea)
+Template.CodeMirror.rendered = function() 
 {
-    Editor.cm = CodeMirror.fromTextArea(textarea, {
-		lineNumbers: true,
-		matchBrackets: true,
-		indentUnit: 4,
-		viewportMargin: Infinity,
-		gutters: ["CodeMirror-linenumbers"],
-		mode: "text/x-glsl",
-		extraKeys: {
-            Tab: function(cm) { 
-                cm.replaceSelection("    ", "end"); 
-            } 
-        }
-    });
-    
-	Editor.cm.on("change", function(cm, change) {
+	var options = this.data.options || { lineNumbers: true };
+	var textarea = this.find("textarea");
+	var editor = CodeMirror.fromTextArea(textarea, options);
+  	var self = this;
 
-        console.log("change");
-        // clearTimeout(compileTimer);
-        // compileTimer = setTimeout(compile, 500);
+	editor.on("change", function(doc) 
+    {
+		var val = doc.getValue();
+		textarea.value = val;
 
-    });
-    
-    console.log("Editor initialized.");
+		if (self.data.reactiveVar) 
+        {
+   			Session.set(self.data.reactiveVar, val);
+		}
+	});
+
+	if (this.data.reactiveVar) 
+    {
+		Tracker.autorun(function () 
+        {
+			var val = Session.get(self.data.reactiveVar) || "";
+			if (val != editor.getValue()) 
+            {
+				editor.setValue(val);
+			}
+    	});
+	}
 };
+
+Template.CodeMirror.destroyed = function() 
+{
+	this.$("textarea").parent().find(".CodeMirror").remove();
+}
+
+Template.CodeMirror.helpers({
+	"editorId": function() 
+    {
+		return this.id || "code-mirror-textarea";
+	},
+
+	"editorName": function() 
+    {
+		return this.name || "code-mirror-textarea";
+	}
+});
+
+
+Template.editor.helpers({
+
+    "editorOptions": function() 
+    {
+        return {
+    		lineNumbers: true,
+    		matchBrackets: true,
+    		indentUnit: 4,
+    		viewportMargin: Infinity,
+    		gutters: ["CodeMirror-linenumbers"],
+    		mode: "text/x-glsl",
+    		extraKeys: {
+                Tab: function(cm) { 
+                    cm.replaceSelection("    ", "end"); 
+                } 
+            }
+        }
+    },
+
+    
+    "getEditorText": function() 
+    {
+        return Session.get("currentCode");
+    }
+    
+});
+
+Template.editor.events({
+
+    "change": function(e, t) 
+    {
+        var code = t.find("#maineditor").value;
+        console.log("foo", code);
+    }
+
+});

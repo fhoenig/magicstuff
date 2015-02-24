@@ -4,10 +4,7 @@ Template.framebuffer.rendered = function()
     Renderer.start();
 };
 
-Template.editor.rendered = function()
-{
-    Editor.init(this.find('textarea'));
-}
+
 
 Meteor.startup(function() 
 {
@@ -15,4 +12,5 @@ Meteor.startup(function()
     {
         Renderer.onResize();
     });
+    
 });
